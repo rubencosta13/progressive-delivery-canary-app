@@ -1,5 +1,9 @@
-import { test, expect, describe, vi } from "vitest";
+import { test, expect, describe, vi, afterAll, beforeAll } from "vitest";
 import app from "../app";
+
+beforeAll(() => {
+  vi.stubEnv("LOGGER_ENABLED", "false");
+});
 
 describe("HTTP routes", () => {
   test('GET / should return status code 200 and reply with "Hello world"', async () => {
@@ -95,4 +99,8 @@ describe("HTTP routes", () => {
     expect(response.statusCode).toBe(302);
     expect(response.headers.location).toBe("/");
   });
+});
+
+afterAll(() => {
+  vi.unstubAllEnvs();
 });
