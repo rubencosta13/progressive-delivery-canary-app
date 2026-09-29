@@ -2,7 +2,7 @@ import Fastify from "fastify";
 import { controller } from "./routes/controller";
 
 const app = Fastify({
-  logger: true,
+  logger: !!process.env.LOGGER_ENABLED,
 });
 
 app.register(controller);
