@@ -5,5 +5,6 @@ console.log(
 );
 
 app.listen({
+  host: process.env.HOST!,
   port: 3000,
 });
