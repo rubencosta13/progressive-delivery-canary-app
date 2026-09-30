@@ -2,9 +2,9 @@ FROM oven/bun:1-alpine
 
 WORKDIR /app
 
-COPY package.json yarn.lock ./
+COPY package.json ./
 
-RUN bun install --production
+RUN bun install --production --no-save
 
 COPY src ./src
 
