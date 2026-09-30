@@ -3,8 +3,12 @@ import type { FastifyInstance } from "fastify";
 export const controller = async (fastify: FastifyInstance) => {
   fastify.get("/", (_request, response) => {
     const version = process.env.DEPLOYMENT_TRACK ?? "unknown";
-
-    return response.code(200).send(`Hello world ${version}`);
+    const responseJson = {
+      message: `Hello from ${version} app`,
+      version: process.env.APP_VERSION,
+      track: process.env.DEPLOYMENT_TRACK,
+    };
+    return response.code(200).send(responseJson);
   });
 
   fastify.get("/500", (_request, response) => {

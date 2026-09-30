@@ -8,7 +8,11 @@ beforeAll(() => {
 describe("HTTP routes", () => {
   test('GET / should return status code 200 and reply with "Hello world"', async () => {
     vi.stubEnv("DEPLOYMENT_TRACK", "stable");
-    const responseMessage = "Hello world stable";
+    const responseMessage = {
+      message: "Hello from stable app",
+      version: process.env.APP_VERSION,
+      track: process.env.DEPLOYMENT_TRACK,
+    };
 
     const response = await app.inject({
       method: "GET",
@@ -16,7 +20,7 @@ describe("HTTP routes", () => {
     });
 
     expect(response.statusCode).toBe(200);
-    expect(response.body).toBe(responseMessage);
+    expect(response.body).toEqual(JSON.stringify(responseMessage));
   });
 
   test('GET /500 should return status code 500 and reply with "Status code 500" ', async () => {
