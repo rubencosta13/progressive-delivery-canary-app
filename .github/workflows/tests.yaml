@@ -1,8 +1,12 @@
 name: Tests
 
 on:
-  push:
   pull_request:
+    paths:
+      - 'src/routes/**'
+  push:
+    paths:
+      - 'src/routes/**'
 
 jobs:
   test:
