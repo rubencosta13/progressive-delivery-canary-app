@@ -1,0 +1,34 @@
+name: Promote Stable
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Version to promote, e.g. 1.0.4"
+        required: true
+        type: string
+
+env:
+  IMAGE: ghcr.io/rubencosta13/progressive-delivery-canary-app
+
+jobs:
+  promote:
+    name: Promote image to stable
+    runs-on: ubuntu-latest
+
+    permissions:
+      packages: write
+
+    steps:
+      - name: Log in to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Promote image
+        run: |
+          docker buildx imagetools create \
+            --tag "${IMAGE}:v${{ inputs.version }}-stable" \
+            "${IMAGE}:v${{ inputs.version }}-canary"
