@@ -1,15 +1,17 @@
 import { test, expect, describe, vi, afterAll, beforeAll } from "vitest";
 import app from "../app";
+import { User } from "../routes/controller";
+import fc from "fast-check";
 
 beforeAll(() => {
   vi.stubEnv("LOGGER_ENABLED", "false");
 });
 
 describe("HTTP routes", () => {
-  test('GET / should return status code 200 and reply with "Hello world"', async () => {
+  test('GET / should return status code 200 and reply with "Hello world and deployment track"', async () => {
     vi.stubEnv("DEPLOYMENT_TRACK", "stable");
     const responseMessage = {
-      message: "Hello from stable app",
+      message: `Hello from ${process.env.DEPLOYMENT_TRACK ?? "unknown"} app`,
       version: process.env.APP_VERSION,
       track: process.env.DEPLOYMENT_TRACK,
     };
@@ -102,6 +104,27 @@ describe("HTTP routes", () => {
 
     expect(response.statusCode).toBe(302);
     expect(response.headers.location).toBe("/");
+  });
+
+  test("user validation never crashes", () => {
+    fc.assert(
+      fc.property(fc.jsonValue(), (input) => {
+        expect(() => User.safeParse(input)).not.toThrow();
+      }),
+    );
+  });
+
+  test("user parser handles malformed users", () => {
+    const userArb = fc.record({
+      name: fc.string(),
+      age: fc.oneof(fc.integer(), fc.double(), fc.string(), fc.constant(null)),
+    });
+
+    fc.assert(
+      fc.property(userArb, (user) => {
+        expect(User.safeParse(user).success).toBe(false);
+      }),
+    );
   });
 });
 

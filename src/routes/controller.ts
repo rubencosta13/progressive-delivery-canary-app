@@ -1,14 +1,24 @@
 import type { FastifyInstance } from "fastify";
+import { z } from "zod";
+
+export const User = z.object({
+  name: z.string().nonoptional(),
+  number: z.number().nonoptional(),
+});
 
 export const controller = async (fastify: FastifyInstance) => {
   fastify.get("/", (_request, response) => {
-    const version = process.env.DEPLOYMENT_TRACK ?? "unknown";
     const responseJson = {
-      message: `Hello from ${version} app`,
+      message: `Hello from ${process.env.DEPLOYMENT_TRACK ?? "unknown"} app`,
       version: process.env.APP_VERSION,
       track: process.env.DEPLOYMENT_TRACK,
     };
     return response.code(200).send(responseJson);
+  });
+
+  fastify.post("/user", async (request, response) => {
+    const user = await User.parseAsync(request.body);
+    response.send(user);
   });
 
   fastify.get("/500", (_request, response) => {
@@ -19,7 +29,7 @@ export const controller = async (fastify: FastifyInstance) => {
     return response.code(404).send("Status code 404");
   });
 
-  fastify.get("/error", (_request, response) => {
+  fastify.get("/error", (_request, _response) => {
     throw new Error("Something went pretty wrong");
   });
 
